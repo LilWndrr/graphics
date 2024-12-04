@@ -1,7 +1,9 @@
 package com.seyf.test;
 
 import com.seyf.core.*;
+import com.seyf.core.lighting.DirectionalLight;
 import com.seyf.entity.Entity;
+import com.seyf.entity.Material;
 import com.seyf.entity.Model;
 import com.seyf.entity.Texture;
 import org.joml.Vector2d;
@@ -23,10 +25,14 @@ public class TestGame implements ILogic {
     private final WindowManager window;
     private final ObjectLoader loader;
     private final Camera camera;
+    private Entity entity;
+
+
 
     Vector3f cameraInc;
 
-    private Entity entity;
+    private float lightAngle;
+    private DirectionalLight directionalLight;
 
     public TestGame(){
         renderer= new RenderManager();
@@ -34,66 +40,21 @@ public class TestGame implements ILogic {
         loader=new ObjectLoader();
         camera= new Camera();
         cameraInc = new Vector3f(0,0,0);
+        lightAngle= -90;
     }
     @Override
     public void init() throws Exception {
         renderer.init();
 
-        float[] vertices = new float[] {
-                -0.5f, 0.5f, 0.5f,
-                -0.5f, -0.5f, 0.5f,
-                0.5f, -0.5f, 0.5f,
-                0.5f, 0.5f, 0.5f,
-                -0.5f, 0.5f, -0.5f,
-                0.5f, 0.5f, -0.5f,
-                -0.5f, -0.5f, -0.5f,
-                0.5f, -0.5f, -0.5f,
-                -0.5f, 0.5f, -0.5f,
-                0.5f, 0.5f, -0.5f,
-                -0.5f, 0.5f, 0.5f,
-                0.5f, 0.5f, 0.5f,
-                0.5f, 0.5f, 0.5f,
-                0.5f, -0.5f, 0.5f,
-                -0.5f, 0.5f, 0.5f,
-                -0.5f, -0.5f, 0.5f,
-                -0.5f, -0.5f, -0.5f,
-                0.5f, -0.5f, -0.5f,
-                -0.5f, -0.5f, 0.5f,
-                0.5f, -0.5f, 0.5f,
-        };
-        float[] textureCoords = new float[]{
-                0.0f, 0.0f,
-                0.0f, 0.5f,
-                0.5f, 0.5f,
-                0.5f, 0.0f,
-                0.0f, 0.0f,
-                0.5f, 0.0f,
-                0.0f, 0.5f,
-                0.5f, 0.5f,
-                0.0f, 0.5f,
-                0.5f, 0.5f,
-                0.0f, 1.0f,
-                0.5f, 1.0f,
-                0.0f, 0.0f,
-                0.0f, 0.5f,
-                0.5f, 0.0f,
-                0.5f, 0.5f,
-                0.5f, 0.0f,
-                1.0f, 0.0f,
-                0.5f, 0.5f,
-                1.0f, 0.5f,
-        };
-        int[] indices = new int[]{
-                0, 1, 3, 3, 1, 2,
-                8, 10, 11, 9, 8, 11,
-                12, 13, 7, 5, 12, 7,
-                14, 15, 6, 4, 14, 6,
-                16, 18, 19, 17, 16, 19,
-                4, 6, 7, 5, 4, 7,
-        };
-        Model model= loader.loadModel(vertices,textureCoords,indices);
-        model.setTexture(new Texture(loader.loadTexture("textures/grassblock.png")));
+
+        Model model= loader.loadOBJModel("/models/f16.obj");
+        model.setTexture(new Texture(loader.loadTexture("textures/blue.jpg")), 1f);
         entity= new Entity(model,new Vector3f(0,0,-5),new Vector3f(0,0,0),1.5f);
+
+        float lightIntensity= 0.0f;
+        Vector3f lightPosition= new Vector3f(-1,-10,0);
+        Vector3f lightColor= new Vector3f(1,1,1);
+        directionalLight= new DirectionalLight(lightColor,lightPosition,lightIntensity);
     }
 
     @Override
@@ -127,7 +88,27 @@ public class TestGame implements ILogic {
             camera.moveRotation(rotVec.x*MOUSE_SENSITIVITY, rotVec.y*MOUSE_SENSITIVITY,0);
         }
 
-        entity.incRotation(0.0f,0.5f,0.0f);
+        //entity.incRotation(0.0f,0.25f,0.0f);
+        lightAngle+=0.5f;
+        if(lightAngle>90){
+            directionalLight.setIntensity(0);
+            if(lightAngle>=360){
+                lightAngle=-90;
+            }
+        }else if ( lightAngle<=-80|| lightAngle>=80){
+            float factor= 1- (Math.abs(lightAngle)-80)/10.0f;
+            directionalLight.setIntensity(factor);
+            directionalLight.getColor().y=Math.max(factor,0.9f);
+            directionalLight.getColor().z=Math.max(factor,0.5f);
+        }else {
+            directionalLight.setIntensity(1);
+            directionalLight.getColor().x=1;
+            directionalLight.getColor().y=1;
+            directionalLight.getColor().z=1;
+        }
+        double angRad= Math.toRadians(lightAngle);
+        directionalLight.getDirection().x= (float) Math.sin(angRad);
+        directionalLight.getDirection().y= (float) Math.sin(angRad);
     }
 
     @Override
@@ -138,7 +119,7 @@ public class TestGame implements ILogic {
         }
 
         window.setClearColor(colour,colour,colour,0.1f);
-        renderer.render(entity,camera);
+        renderer.render(entity,camera, directionalLight);
     }
 
     @Override

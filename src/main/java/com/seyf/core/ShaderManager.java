@@ -1,5 +1,7 @@
 package com.seyf.core;
 
+import com.seyf.core.lighting.DirectionalLight;
+import com.seyf.entity.Material;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -32,6 +34,22 @@ public class ShaderManager {
         uniforms.put(uniformName,uniformLocation);
     }
 
+    public void createDirectionalLightUniform(String uniformName) throws Exception{
+        createUniform(uniformName+".color");
+        createUniform(uniformName+".direction");
+        createUniform(uniformName+".intensity");
+    }
+
+    public void createMaterialUniform(String uniformName) throws Exception{
+        createUniform(uniformName + ".ambient");
+        createUniform(uniformName + ".diffuse");
+        createUniform(uniformName + ".specular");
+        createUniform(uniformName + ".hasTexture");
+        createUniform(uniformName + ".reflectance");
+
+    }
+
+
     public void setUniform(String uniformName, Matrix4f value){
         try(MemoryStack stack=MemoryStack.stackPush()) {
             GL20.glUniformMatrix4fv(uniforms.get(uniformName),false,value.get(stack.mallocFloat(16)));
@@ -49,6 +67,20 @@ public class ShaderManager {
     }
     public void setUniform(String uniformName, Vector3f value){
         GL20.glUniform3f(uniforms.get(uniformName),value.x,value.y,value.z);
+    }
+
+    public  void  setUniform(String uniformName, Material material){
+        setUniform(uniformName + ".ambient", material.getAmbientColor());
+        setUniform(uniformName + ".diffuse",material.getDiffuseColor());
+        setUniform(uniformName + ".specular",material.getSpecularColor());
+        setUniform(uniformName + ".hasTexture",material.hasTexture() ? 1:0);
+        setUniform(uniformName + ".reflectance",material.getReflectance());
+    }
+
+    public void setUniform(String uniformName, DirectionalLight directionalLight){
+        setUniform(uniformName+".color", directionalLight.getColor());
+        setUniform(uniformName+".direction", directionalLight.getDirection());
+        setUniform(uniformName+".intensity", directionalLight.getIntensity());
     }
 
     public void setUniform(String uniformName,boolean value){
