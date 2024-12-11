@@ -1,17 +1,12 @@
 package com.seyf.core;
 
-import com.jogamp.opengl.Threading;
 import com.seyf.core.utils.Utils;
 import com.seyf.entity.Model;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.*;
 import org.lwjgl.stb.STBImage;
-import org.lwjgl.system.CallbackI;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.ByteBuffer;
@@ -19,7 +14,6 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 public class ObjectLoader {
 
@@ -146,6 +140,9 @@ public class ObjectLoader {
         storeDataInAttribList(0,3,vertices);
         storeDataInAttribList(1,2,textureCoords);
         storeDataInAttribList(2,3,normals);
+
+
+
         unbind();
         return new Model(id,indices.length);
     }
@@ -171,6 +168,13 @@ public class ObjectLoader {
         GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT,1);
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D,0,GL11.GL_RGBA,width,height,0,GL11.GL_RGBA,GL11.GL_UNSIGNED_BYTE,buffer);
         GL30.glGenerateMipmap(GL11.GL_TEXTURE_2D);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+
+
+
+
+
         STBImage.stbi_image_free(buffer);
         return id;
     }

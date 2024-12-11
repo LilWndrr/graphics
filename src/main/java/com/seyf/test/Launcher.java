@@ -3,7 +3,6 @@ package com.seyf.test;
 import com.seyf.core.EngineManager;
 import com.seyf.core.WindowManager;
 import com.seyf.core.utils.Consts;
-import org.lwjgl.Version;
 
 public class Launcher {
 
@@ -14,7 +13,7 @@ public class Launcher {
 
         public static void main(String[] args) {
 
-            window = new WindowManager(Consts.TITLE, 1600,900,false);
+            window = new WindowManager(Consts.TITLE, 1600,900,true);
             game=new TestGame();
             EngineManager engine = new EngineManager();
 

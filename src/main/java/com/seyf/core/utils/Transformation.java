@@ -1,6 +1,7 @@
 package com.seyf.core.utils;
 
 import com.seyf.core.Camera;
+import com.seyf.core.terrain.Terrain;
 import com.seyf.entity.Entity;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -17,7 +18,14 @@ public class Transformation {
         return matrix;
     }
 
-    public static Matrix4f getViewMatrix(Camera camera){
+    public static Matrix4f createTransformationMatrix(Terrain terrain){
+        Matrix4f matrix= new Matrix4f();
+        matrix.identity().translate(terrain.getPosition()).scale(1);
+        return matrix;
+    }
+
+
+        public static Matrix4f getViewMatrix(Camera camera){
         Vector3f pos= camera.getPosition();
         Vector3f rot= camera.getRotation();
         Matrix4f matrix= new Matrix4f();
